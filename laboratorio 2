@@ -1,119 +1,146 @@
+TIPOS_CONSULTA_VALIDOS = ["matricula", "pagos", "constancia", "plataforma", "otro"]
+LONGITUD_MINIMA_CODIGO = 6
+ 
 def mostrar_menu():
-    print("\n" + "=" * 45)
-    print("   SISTEMA DE SOPORTE ACADÉMICO")
-    print("=" * 45)
+    print("\n===== SOPORTE ACADÉMICO =====")
     print("1. Registrar nueva solicitud")
-    print("2. Mostrar resumen de solicitudes")
-    print("3. Salir")
-    print("=" * 45)
-
-# --- FUNCIONES DE VALIDACIÓN FALTANTES ---
-
-def validar_codigo(codigo):
-    if not codigo.strip():
-        print("  ❌ Error: El código no puede estar vacío.")
+    print("2. Ver solicitudes registradas")
+    print("3. Ejecutar pruebas automáticas")
+    print("4. Salir")
+    print("==============================")
+ 
+def validar_texto_obligatorio(texto):
+    if texto is None:
         return False
-    return True
-
-def validar_texto(texto, nombre_campo):
-    if not texto.strip():
-        print(f"  ❌ Error: El campo '{nombre_campo}' no puede estar vacío.")
+    return len(texto.strip()) > 0
+ 
+def validar_codigo_estudiante(codigo):
+    if not validar_texto_obligatorio(codigo):
         return False
-    return True
-
-def validar_tipo_consulta(tipo):
-    tipos_validos = ["matrícula", "matricula", "pagos", "constancia", "plataforma", "otro"]
-    if tipo.lower().strip() not in tipos_validos:
-        print("  ❌ Error: Tipo de consulta no válido. (Use: matrícula/pagos/constancia/plataforma/otro)")
+    return len(codigo.strip()) >= LONGITUD_MINIMA_CODIGO
+ 
+def validar_tipo_consulta(tipo_consulta):
+    if not validar_texto_obligatorio(tipo_consulta):
         return False
-    return True
-
-def calcular_prioridad(tipo):
-    tipo_normalizado = tipo.lower().strip()
-    if tipo_normalizado in ["plataforma", "pagos"]:
+    return tipo_consulta.strip().lower() in TIPOS_CONSULTA_VALIDOS
+  
+def calcular_prioridad(tipo_consulta):
+    tipo = tipo_consulta.strip().lower()
+    if tipo in ("matricula", "plataforma"):
         return "Alta"
-    elif tipo_normalizado in ["matrícula", "matricula"]:
+    elif tipo == "pagos":
         return "Media"
     else:
         return "Baja"
-
-# --- FUNCIONES DE VISUALIZACIÓN FALTANTES ---
-
-def mostrar_resumen(solicitud):
-    print("\n--- RESUMEN DE LA SOLICITUD RECIENTE ---")
-    print(f"Estudiante: {solicitud['nombre']} ({solicitud['codigo']})")
-    print(f"Asunto: {solicitud['tipo'].capitalize()} | Prioridad: {solicitud['prioridad']}")
-
-def mostrar_todas_las_solicitudes(solicitudes):
-    if not solicitudes:
-        print("\n  📂 No hay solicitudes registradas actualmente.")
-        return
-    
-    print("\n" + "=" * 45)
-    print("   LISTADO DE SOLICITUDES REGISTRADAS")
-    print("=" * 45)
-    for i, sol in enumerate(solicitudes, 1):
-        print(f"{i}. [{sol['prioridad'].upper()}] {sol['codigo']} - {sol['nombre']} ({sol['tipo']})")
-        print(f"   Desc: {sol['descripcion']}")
-    print("=" * 45)
-
-# --- CÓDIGO ORIGINAL ---
-
-def registrar_solicitud():
-    print("\n--- REGISTRO DE NUEVA SOLICITUD ---")
-    codigo = input("Ingrese código de estudiante: ")
-    if not validar_codigo(codigo):
+ 
+def registrar_solicitud(codigo, nombre, tipo_consulta, descripcion):
+    if not validar_codigo_estudiante(codigo):
+        print("Error: código de estudiante inválido (vacío o muy corto).")
         return None
-    
-    nombre = input("Ingrese nombre del estudiante: ")
-    if not validar_texto(nombre, "nombre"):
+ 
+    if not validar_texto_obligatorio(nombre):
+        print("Error: el nombre no puede estar vacío.")
         return None
-    
-    tipo = input("Ingrese tipo de consulta (matrícula/pagos/constancia/plataforma/otro): ")
-    if not validar_tipo_consulta(tipo):
+ 
+    if not validar_tipo_consulta(tipo_consulta):
+        print("Error: tipo de consulta no reconocido.")
         return None
-    
-    descripcion = input("Ingrese descripción breve: ")
-    if not validar_texto(descripcion, "descripción"):
+ 
+    if not validar_texto_obligatorio(descripcion):
+        print("Error: la descripción no puede estar vacía.")
         return None
-    
-    prioridad = calcular_prioridad(tipo)
+ 
+    prioridad = calcular_prioridad(tipo_consulta)
+ 
     solicitud = {
         "codigo": codigo.strip(),
         "nombre": nombre.strip(),
-        "tipo": tipo.lower().strip(),
+        "tipo_consulta": tipo_consulta.strip().lower(),
         "descripcion": descripcion.strip(),
-        "prioridad": prioridad
+        "prioridad": prioridad,
     }
-    print(f"\n  ✅ Solicitud registrada con prioridad {prioridad}.")
     return solicitud
-
-# Archivo principal del sistema
-# Orlando correa Flores
-def main():
-    solicitudes = []
-    opcion = ""
-    while opcion != "3":
-        mostrar_menu()
-        opcion = input("Seleccione una opción: ").strip()
-        
-        if opcion == "1":
-            if len(solicitudes) >= 3:
-                print("\n  ⚠ Ya se registraron 3 solicitudes (límite de la práctica).")
-                continue
-            nueva = registrar_solicitud()
-            if nueva is not None:
-                solicitudes.append(nueva)
-                mostrar_resumen(nueva)
-                
-        elif opcion == "2":
-            mostrar_todas_las_solicitudes(solicitudes)
-            
-        elif opcion == "3":
-            print("\n  👋 Saliendo del sistema. ¡Hasta luego!")
-            
+ 
+def mostrar_resumen(solicitud):
+    print("\n--- Resumen de la solicitud ---")
+    print(f"Código:        {solicitud['codigo']}")
+    print(f"Nombre:        {solicitud['nombre']}")
+    print(f"Tipo consulta: {solicitud['tipo_consulta']}")
+    print(f"Descripción:   {solicitud['descripcion']}")
+    print(f"Prioridad:     {solicitud['prioridad']}")
+    print("-------------------------------")
+ 
+def capturar_solicitudes_desde_teclado(cantidad):
+    lista_solicitudes = []
+    for i in range(cantidad):
+        print(f"\n--- Registrando solicitud {i + 1} de {cantidad} ---")
+        codigo = input("Código de estudiante: ")
+        nombre = input("Nombre: ")
+        tipo_consulta = input("Tipo de consulta (matricula/pagos/constancia/plataforma/otro): ")
+        descripcion = input("Descripción breve: ")
+ 
+        solicitud = registrar_solicitud(codigo, nombre, tipo_consulta, descripcion)
+        if solicitud is not None:
+            lista_solicitudes.append(solicitud)
+            mostrar_resumen(solicitud)
         else:
-            print("\n  ❌ Opción inválida. Intente de nuevo.")
-
+            print("La solicitud no se registró por datos inválidos.")
+ 
+    return lista_solicitudes
+ 
+def ejecutar_pruebas():
+    print("\n===== EJECUTANDO PRUEBAS =====")
+ 
+    r1 = registrar_solicitud("A00123", "Ana Torres", "matricula", "Duda sobre fechas de matrícula")
+    print("Caso 1 (datos válidos):", "OK" if r1 else "FALLÓ")
+ 
+    r2 = registrar_solicitud("", "Luis Pérez", "pagos", "Consulta sobre pago pendiente")
+    print("Caso 2 (código vacío):", "Rechazado correctamente" if r2 is None else "ERROR: debió rechazarse")
+ 
+    r3 = registrar_solicitud("B00456", "Marta Ruiz", "reclamo", "Quiero reclamar una nota")
+    print("Caso 3 (tipo incorrecto):", "Rechazado correctamente" if r3 is None else "ERROR: debió rechazarse")
+ 
+    r4 = registrar_solicitud("C00789", "Jorge Díaz", "plataforma", "No puede ingresar al aula virtual")
+    if r4:
+        print("Caso 4 (prioridad alta):", "OK" if r4["prioridad"] == "Alta" else "FALLÓ")
+    else:
+        print("Caso 4 (prioridad alta): FALLÓ (no se registró)")
+ 
+    r5 = registrar_solicitud("D00987", "Karen Vega", "constancia", "Solicita constancia de estudios")
+    if r5:
+        print("Caso 5 (prioridad baja):", "OK" if r5["prioridad"] == "Baja" else "FALLÓ")
+    else:
+        print("Caso 5 (prioridad baja): FALLÓ (no se registró)")
+ 
+    print("===== FIN DE PRUEBAS =====")
+ 
+def main():
+    lista_solicitudes = []
+ 
+    while True:
+        mostrar_menu()
+        opcion = input("Seleccione una opción: ")
+ 
+        if opcion == "1":
+            nuevas = capturar_solicitudes_desde_teclado(3)
+            lista_solicitudes.extend(nuevas)
+ 
+        elif opcion == "2":
+            if not lista_solicitudes:
+                print("\nAún no hay solicitudes registradas.")
+            else:
+                for solicitud in lista_solicitudes:
+                    mostrar_resumen(solicitud)
+ 
+        elif opcion == "3":
+            ejecutar_pruebas()
+ 
+        elif opcion == "4":
+            print("Saliendo del sistema...")
+            break
+ 
+        else:
+            print("Opción no válida, intente de nuevo.")
+ 
 if __name__ == "__main__":
-    main()﻿print("¡Hola, mundo desde mi rama de funcionalidad!")
+    main()
