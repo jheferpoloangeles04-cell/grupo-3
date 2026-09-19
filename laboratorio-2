@@ -1,0 +1,23 @@
+TIPOS_CONSULTA_VALIDOS = ["matricula", "pagos", "constancia", "plataforma", "otro"]
+LONGITUD_MINIMA_CODIGO = 6
+
+
+def mostrar_menu():
+    print("\n===== SOPORTE ACADÉMICO =====")
+    print("1. Registrar nueva solicitud")
+    print("2. Ver solicitudes registradas")
+    print("3. Ejecutar pruebas automáticas")
+    print("4. Salir")
+    print("==============================")
+
+
+def validar_texto_obligatorio(texto):
+    if texto is None:
+        return False
+    return len(texto.strip()) > 0
+
+
+def validar_codigo_estudiante(codigo):
+    if not validar_texto_obligatorio(codigo):
+        return False
+    return len(codigo.strip()) >= LONGITUD_MINIMA_CODIGO
