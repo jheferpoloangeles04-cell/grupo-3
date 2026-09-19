@@ -33,7 +33,46 @@ def calcular_prioridad(tipo_consulta):
 
     if tipo in ("matricula", "plataforma"):
         return "Alta"
-    elif tipo == "pagos":
+    elif tipo == "pagos": 
         return "Media"
     else:
         return "Baja"
+
+def registrar_solicitud(codigo, nombre, tipo_consulta, descripcion):
+    if not validar_codigo_estudiante(codigo):
+        print("Error: código de estudiante inválido (vacío o muy corto).")
+        return None
+
+    if not validar_texto_obligatorio(nombre):
+        print("Error: el nombre no puede estar vacío.")
+        return None
+
+    if not validar_tipo_consulta(tipo_consulta):
+        print("Error: tipo de consulta no reconocido.")
+        return None
+
+    if not validar_texto_obligatorio(descripcion):
+        print("Error: la descripción no puede estar vacía.")
+        return None
+
+    prioridad = calcular_prioridad(tipo_consulta)
+
+    solicitud = {
+        "codigo": codigo.strip(),
+        "nombre": nombre.strip(),
+        "tipo_consulta": tipo_consulta.strip().lower(),
+        "descripcion": descripcion.strip(),
+        "prioridad": prioridad,
+    }
+
+    return solicitud
+
+
+def mostrar_resumen(solicitud):
+    print("\n--- Resumen de la solicitud ---")
+    print(f"Código:        {solicitud['codigo']}")
+    print(f"Nombre:        {solicitud['nombre']}")
+    print(f"Tipo consulta: {solicitud['tipo_consulta']}")
+    print(f"Descripción:   {solicitud['descripcion']}")
+    print(f"Prioridad:     {solicitud['prioridad']}")
+    print("-------------------------------")
