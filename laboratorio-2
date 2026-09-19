@@ -21,3 +21,19 @@ def validar_codigo_estudiante(codigo):
     if not validar_texto_obligatorio(codigo):
         return False
     return len(codigo.strip()) >= LONGITUD_MINIMA_CODIGO
+
+def validar_tipo_consulta(tipo_consulta):
+    if not validar_texto_obligatorio(tipo_consulta):
+        return False
+    return tipo_consulta.strip().lower() in TIPOS_CONSULTA_VALIDOS
+
+
+def calcular_prioridad(tipo_consulta):
+    tipo = tipo_consulta.strip().lower()
+
+    if tipo in ("matricula", "plataforma"):
+        return "Alta"
+    elif tipo == "pagos":
+        return "Media"
+    else:
+        return "Baja"
